@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Алгоритм Дейкстри</title>
+</head>
+
+<body>
+    <h1>Алгоритм Дейкстри</h2>
+        <label for="graphInput">Введіть граф:</label>
+        <br>
+        <textarea id="graphInput" rows="6" cols="15"></textarea>
+        <textarea readonly rows="6" cols="30">Готова матриця для тестування:
+0 2 0 4 0
+2 0 1 0 7
+0 1 0 3 0
+4 0 3 0 1
+0 7 0 1 0</textarea>
+        <br>
+        <button onclick="alghorytmDejkstra()">Запустити алгоритм Дейкстри</button>
+        <h2>Кроки:</h3>
+            <div id="steps"></div>
+            <h2>Результат:</h3>
+                <div id="output"></div>
+
+                <script>
+                    //тіло алгоритму
+                    function alghorytmDejkstra() {
+                        //очищення кроків
+                        document.getElementById("steps").innerHTML = "";
+                        const graphInput = document.getElementById("graphInput").value.trim();
+                        //розділяє числа в рядках через пробіл, та рядки через ентер
+                        const graphRows = graphInput.split('\n').map(row => row.split(' ').map(Number));
+
+                        const result = alghorytm(graphRows);
+
+                        //вивід результатів
+                        const outputDiv = document.getElementById("output");
+                        outputDiv.innerHTML = "<p>Найкоротші відстані:</p><ul>";
+                        result.distances.forEach((distance, index) => {
+                            outputDiv.innerHTML += `<li>Вершина ${index + 1}: ${distance}</li>`;
+                        });
+                        outputDiv.innerHTML += "</ul>";
+                    }
+
+                    function alghorytm(graph) {
+                        const n = graph.length;
+                        const distances = Array(n).fill(Infinity); //за замовчуванням відстань = нескінченності
+                        const visited = Array(n).fill(false);
+                        const stepsDiv = document.getElementById("steps");
+
+                        distances[0] = 0; //відстань до 1ї вершини = 0
+
+                        //цикл алгоритму
+                        for (let i = 0; i < n - 1; i++) {
+                            const u = minDistance(distances, visited); //вибір вершини з найменшою відстанню
+                            visited[u] = true;
+
+                            stepsDiv.innerHTML += `<p>Крок ${i + 1}: Перехід до вершини ${u + 1}</p>`;
+
+                            //оновлення відстаней до сусідніх вершин
+                            for (let v = 0; v < n; v++) {
+                                if (!visited[v] && graph[u][v] !== 0 && distances[u] !== Infinity &&
+                                    distances[u] + graph[u][v] < distances[v]) {
+                                    distances[v] = distances[u] + graph[u][v];
+                                    stepsDiv.innerHTML += `<p>Оновлення відстані до вершини ${v + 1}: ${distances[v]}</p>`;
+                                }
+                            }
+                        }
+                        return { distances };
+                    }
+
+                    function minDistance(distances, visited) {
+                        let min = Infinity;
+                        let minIndex = -1;
+
+                        //знаходження найменшої відстані до невідвіданих вершин
+                        for (let v = 0; v < distances.length; v++) {
+                            if (!visited[v] && distances[v] <= min) {
+                                min = distances[v];
+                                minIndex = v;
+                            }
+                        }
+                        return minIndex;
+                    }
+                </script>
+</body>
+
+</html>
